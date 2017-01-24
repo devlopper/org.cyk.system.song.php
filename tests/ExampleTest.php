@@ -13,7 +13,15 @@ class ExampleTest extends TestCase
      */
     public function testBasicExample()
     {
-        $this->visit('/')
-             ->see('Laravel');
+        //$this->visit('/')->see('Yes');
+    }
+
+    public function testDatabase()
+    {
+        // Make call to application...
+
+        $this->seeInDatabase('globalidentifier', ['identifier' => '1','code' => 'A','name' => 'Na']);
+
+        $this->seeInDatabase('globalidentifier', ['identifier' => '2','code' => 'B','name' => 'Nb']);
     }
 }

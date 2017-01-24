@@ -79,7 +79,16 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Yes,Lord
+                    Yes,Lord , Jesus
+                    <?php
+                    echo "Env : ".  App::environment();  
+                    $flights = App\Model\GlobalIdentifier::all();
+
+                    foreach ($flights as $flight) {
+                      echo $flight->name;
+                    }
+
+                    ?>
                 </div>
 
                 <div class="links">
