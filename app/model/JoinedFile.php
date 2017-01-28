@@ -4,7 +4,7 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
 
-require_once('\app\model\AbstractEntity.php');
+require_once(app_path().'\model\AbstractEntity.php');
 
 class JoinedFile extends AbstractEntity
 {

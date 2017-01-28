@@ -20,8 +20,8 @@ class ExampleTest extends TestCase
     {
         // Make call to application...
 
-        $this->seeInDatabase('globalidentifier', ['identifier' => '1','code' => 'A','name' => 'Na']);
+        //$this->seeInDatabase('globalidentifier', ['identifier' => '1','code' => 'A','name' => 'Na']);
 
-        $this->seeInDatabase('globalidentifier', ['identifier' => '2','code' => 'B','name' => 'Nb']);
+        //$this->seeInDatabase('globalidentifier', ['identifier' => '2','code' => 'B','name' => 'Nb']);
     }
 }

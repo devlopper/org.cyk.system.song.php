@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 require_once(app_path().'\model\AbstractEntity.php');
 
-class Tag extends AbstractEntity
+class TagHierarchy extends AbstractEntity
 {
-    protected $table = 'tag';
+    protected $table = 'taghierarchy';
 
 }

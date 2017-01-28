@@ -22,11 +22,11 @@ class SongSchema extends Migration
       //File module
       Schema::create('file', function (Blueprint $table) {
           $table->increments('identifier')->unique();
-          $table->string('globalidentifier');
+          $table->string('globalidentifier')->nullable();
           $table->binary('bytes')->nullable();
-          $table->string('extension');
-          $table->string('mime');
-          $table->string('url');
+          $table->string('extension')->nullable();
+          $table->string('mime')->nullable();
+          $table->string('url')->nullable();
       });
       Schema::create('joinedfile', function (Blueprint $table) {
           $table->increments('identifier')->unique();
@@ -47,7 +47,7 @@ class SongSchema extends Migration
       //Tag module
       Schema::create('tag', function (Blueprint $table) {
           $table->increments('identifier')->unique();
-          $table->string('globalidentifier');
+          $table->string('globalidentifier')->nullable();
       });
       Schema::create('joinedtag', function (Blueprint $table) {
           $table->increments('identifier')->unique();
@@ -56,7 +56,7 @@ class SongSchema extends Migration
       });
       Schema::create('taghierarchy', function (Blueprint $table) {
           $table->increments('identifier')->unique();
-          $table->string('globalidentifier');
+          $table->string('globalidentifier')->nullable();
           $table->integer('parent')->unsigned();
           $table->integer('child')->unsigned();
       });
@@ -79,7 +79,7 @@ class SongSchema extends Migration
       //Song module
       Schema::create('song', function (Blueprint $table) {
           $table->increments('identifier')->unique();
-          $table->string('globalidentifier');
+          $table->string('globalidentifier')->nullable();
           $table->string('lyrics',1024);
       });
 
