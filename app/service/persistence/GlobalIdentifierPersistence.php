@@ -6,15 +6,15 @@ require_once(app_path().'\service\persistence\AbstractPersistence.php');
 
 class GlobalIdentifierPersistence extends \App\Service\Persistence\AbstractPersistence {
 
-    protected function getEntityModel(){
-        return \App\Model\GlobalIdentifier;
+    public function getEntityModel(){
+        return \App\Model\Identifiable\GlobalIdentifier;
     }
 
-    protected function getEntityClass(){
-        return \App\Model\GlobalIdentifier::class;
+    public function getEntityClass(){
+        return \App\Model\Identifiable\GlobalIdentifier::class;
     }
 
-    protected function getTableName(){
+    public function getTableName(){
       return "globalidentifier";
     }
 }

@@ -39,4 +39,11 @@ abstract class AbstractNotGlobalIdentifierBusiness extends \App\Service\Business
     },array($entity));
   }
 
+  /**/
+
+  public function instanciateOne(){
+    $identifiable = parent::instanciateOne();
+    return $identifiable;
+  }
+
 }

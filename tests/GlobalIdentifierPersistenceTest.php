@@ -11,7 +11,7 @@ class GlobalIdentifierPersistenceTest extends TestCase {
     use DatabaseTransactions;
 
     public function testCreate(){
-      $globalIdentifier = new App\Model\GlobalIdentifier();
+      $globalIdentifier = new App\Model\Identifiable\GlobalIdentifier();
       $globalIdentifier->identifier = "myid";
       $globalIdentifier->code = "mycode";
       $globalIdentifier->name = "mynameh";

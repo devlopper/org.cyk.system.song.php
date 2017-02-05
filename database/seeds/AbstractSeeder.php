@@ -17,7 +17,7 @@ abstract class AbstractSeeder extends Seeder
     {
       /*for($i=0; $i < $this::getEntityCount();$i++) {
         $entity = factory($this::getEntityClass(), 1)->make();
-        $gid = factory(App\Model\GlobalIdentifier::class, 1)->make();
+        $gid = factory(App\Model\Identifiable\GlobalIdentifier::class, 1)->make();
         $entity->globalidentifier = $gid->identifier;
         $gid->save();
         $entity->save();
@@ -29,7 +29,7 @@ abstract class AbstractSeeder extends Seeder
     public static function create($entityClass,$entityCount){
       for($i=0; $i < $entityCount;$i++) {
         $entity = factory($entityClass, 1)->make();
-        $gid = factory(App\Model\GlobalIdentifier::class, 1)->make();
+        $gid = factory(App\Model\Identifiable\GlobalIdentifier::class, 1)->make();
         //echo "ENTITY : ".$entity."\r\n";
         //echo "GID    : ".$gid."\r\n";
         $entity->globalidentifier = $gid->identifier;

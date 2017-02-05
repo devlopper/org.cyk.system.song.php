@@ -11,6 +11,6 @@ class SongSeeder extends AbstractSeeder
   }
 
   protected function getEntityCount(){
-    return 1;
+    return 100;
   }
 }

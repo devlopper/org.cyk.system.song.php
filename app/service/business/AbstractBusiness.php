@@ -6,7 +6,8 @@ require_once(app_path().'\service\AbstractService.php');
 
 abstract class AbstractBusiness extends \App\Service\AbstractService {
 
-  protected abstract function getPersistence();
+  public abstract function getDtoClass();
+  public abstract function getPersistence();
 
   protected function executeInTransaction($function,$parameters){
     try {
@@ -20,17 +21,20 @@ abstract class AbstractBusiness extends \App\Service\AbstractService {
 
   /* Create */
 
-  /*public function create($entity){
-    $this->executeInTransaction(function($entity){
-      $this->getPersistence()->create($entity);
-    },array($entity));
-    return $entity;
-  }*/
+  public function create($entity){}
 
   /* Find */
 
   public function find($identifier){
     return $this->getPersistence()->read($identifier);
+  }
+
+  public function findAll(){
+    return $this->getPersistence()->readAll();
+  }
+
+  public function findAllUsingPagination($pagination){
+    return $this->getPersistence()->readAllUsingPagination($pagination);
   }
 
   public function findByCode($code){
@@ -39,9 +43,15 @@ abstract class AbstractBusiness extends \App\Service\AbstractService {
 
   /* Update */
 
-  /*public function update($entity){
-    return $this->getPersistence()->save();
-  }*/
+  public function update($entity){}
+
+  public function save($entity){
+    if(empty($entity->identifier)){
+        $this->create($entity);
+    }else{
+        $this->update($entity);
+    }
+  }
 
   /* Delete */
 
@@ -53,5 +63,17 @@ abstract class AbstractBusiness extends \App\Service\AbstractService {
 
   public function countAll(){
     return $this->getPersistence()->countAll();
+  }
+
+  public function countAllUsingPagination($pagination){
+    return $this->getPersistence()->countAllUsingPagination($pagination);
+  }
+
+  /* Instanciate */
+
+  public function instanciateOne(){
+    $class = $this->getPersistence()->getEntityClass();
+    $identifiable = new $class;
+    return $identifiable;
   }
 }

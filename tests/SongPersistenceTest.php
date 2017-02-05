@@ -14,7 +14,7 @@ class SongPersistenceTest extends TestCase {
 
       /*for($i=0; $i < 3;$i++) {
         $entity = factory(App\Model\Song::class, 1)->make();
-        $gid = factory(App\Model\GlobalIdentifier::class, 1)->make();
+        $gid = factory(App\Model\Identifiable\GlobalIdentifier::class, 1)->make();
         $entity->globalidentifier = $gid->identifier;
         $gid->save();
         $entity->save();
@@ -28,7 +28,7 @@ class SongPersistenceTest extends TestCase {
 
       for($i=0; $i < 1;$i++) {
         $entity = factory(App\Model\Song::class, 1)->make();
-        $gid = factory(App\Model\GlobalIdentifier::class, 1)->make();
+        $gid = factory(App\Model\Identifiable\GlobalIdentifier::class, 1)->make();
         $songPersistence->create($entity,$gid);
       }
 

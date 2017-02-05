@@ -21,7 +21,7 @@
             "database"
         ],
         "files": [
-          "app/model/AbstractEntity.php"
+          "app/model/Identifiable/AbstractIdentifiable.php"
         ],
         "psr-4": {
             "App\\": "app/"

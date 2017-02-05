@@ -6,9 +6,9 @@ require_once(app_path().'\service\AbstractService.php');
 
 abstract class AbstractPersistence extends \App\Service\AbstractService {
 
-    protected abstract function getEntityModel();
-    protected abstract function getEntityClass();
-    protected function getTableName(){
+    public abstract function getEntityModel();
+    public abstract function getEntityClass();
+    public function getTableName(){
       return (new \ReflectionClass(new $this->getEntityModel()))->getShortName();
     }
 
@@ -23,6 +23,16 @@ abstract class AbstractPersistence extends \App\Service\AbstractService {
     public function read($identifier){
       $class = $this->getEntityClass();
       return $class::find($identifier);
+    }
+
+    public function readAll(){
+      $class = $this->getEntityClass();
+      return $class::all();
+    }
+
+    public function readAllUsingPagination($pagination){
+      $class = $this->getEntityClass();
+      return $class::skip($pagination->firstIndex)->take($pagination->pageSize)->get();
     }
 
     public function readByCode($code){
@@ -46,6 +56,10 @@ abstract class AbstractPersistence extends \App\Service\AbstractService {
 
     public function countAll(){
       return \DB::table($this->getTableName())->count();
+    }
+
+    public function countAllUsingPagination($pagination){
+      return \DB::table($this->getTableName())/*->paginate($paginator->perPage())*/->count();
     }
 
 }

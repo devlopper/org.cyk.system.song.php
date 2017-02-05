@@ -81,8 +81,8 @@
                 <div class="title m-b-md">
                     Yes,Lord , Jesus
                     <?php
-                    echo "Env : ".  App::environment();  
-                    $flights = App\Model\GlobalIdentifier::all();
+                    echo "Env : ".  App::environment();
+                    $flights = App\Model\Identifiable\GlobalIdentifier::all();
 
                     foreach ($flights as $flight) {
                       echo $flight->name;

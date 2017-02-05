@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Model\Identifiable\Song\Song;
+use App\Service\Business\SongBusiness;
 
 require_once('\database\seeds\AbstractSeeder.php');
 
@@ -10,8 +12,13 @@ class SongBusinessTest extends TestCase {
 
     use DatabaseMigrations;
 
+    public function testInstanciateOne(){
+        $song = (new SongBusiness())->instanciateOne();
+        $this->assertNotEquals(null, $song);
+    }
+
     public function testCreate(){
-      $song = new App\Model\Song();
+      $song = (new SongBusiness())->instanciateOne();
       $song->getGlobalIdentifierInstance()->code = "s001";
       $song->getGlobalIdentifierInstance()->name = "Yes! You are";
       $song->lyrics="Oh Jesus! You are my lord.";
@@ -32,7 +39,7 @@ class SongBusinessTest extends TestCase {
     }
 
     public function testRead(){
-      $song = new App\Model\Song();
+      $song = new Song();
       $song->getGlobalIdentifierInstance()->code = "s001ToRead";
       $song->getGlobalIdentifierInstance()->name = "My song";
       $song->lyrics="The lines of the lyrics";
@@ -42,7 +49,7 @@ class SongBusinessTest extends TestCase {
     }
 
     public function testUpdate(){
-      $song = new App\Model\Song();
+      $song = new Song();
       $song->getGlobalIdentifierInstance()->code = "s001ToUpdate";
       $song->getGlobalIdentifierInstance()->name = "My song";
       $song->lyrics="The lines of the lyrics";
@@ -64,7 +71,7 @@ class SongBusinessTest extends TestCase {
     }
 
     public function testDelete(){
-      $song = new App\Model\Song();
+      $song = new Song();
       $song->getGlobalIdentifierInstance()->code = "s001ToDelete";
       $song->getGlobalIdentifierInstance()->name = "My song";
       $song->lyrics="The lines of the lyrics";
@@ -87,6 +94,25 @@ class SongBusinessTest extends TestCase {
       $this->assertEquals(null, (new App\Service\Business\SongBusiness())->findByCode("s001ToDelete"));
     }
 
+    public function testPagination(){
+      $songBusiness = new \App\Service\Business\SongBusiness();
+      for($i = 0 ; $i < 10 ; $i++){
+        $song = new Song();
+        $song->getGlobalIdentifierInstance()->code = "s".$i;
+        $song->getGlobalIdentifierInstance()->name = "My song";
+        $song->lyrics="The lines of the lyrics";
+        $songBusiness->create($song);
+      }
+
+      $paginator = new \App\Model\Utils\Pagination(0,3);
+      $songs = $songBusiness->findAllUsingPagination($paginator);
+      $this->assertSongPagination(['s0','s1','s2'],$paginator,$songs);
+
+      $paginator = new \App\Model\Utils\Pagination(3,3);
+      $songs = $songBusiness->findAllUsingPagination($paginator);
+      $this->assertSongPagination(['s3','s4','s5'],$paginator,$songs);
+
+    }
     /**/
 
     private function assertSong($code,$name,$lyrics,$song){
@@ -105,5 +131,11 @@ class SongBusinessTest extends TestCase {
       echo "NAME : ".$song->getGlobalIdentifierInstance()->name."\r\n";
       echo "LYRICS : ".$song->lyrics."\r\n";
       var_dump($song->getAttributes());
+    }
+
+    private function assertSongPagination($codes,$paginator,$songs){
+      for($i = 0 ; $i < count($songs) ; $i++){
+        $this->assertEquals($codes[$i], $songs[$i]->getGlobalIdentifier->code);
+      }
     }
 }
