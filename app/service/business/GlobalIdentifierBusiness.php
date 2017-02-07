@@ -6,12 +6,8 @@ require_once(app_path().'\service\business\AbstractBusiness.php');
 
 class GlobalIdentifierBusiness extends \App\Service\Business\AbstractBusiness {
 
-    public function getDtoClass(){
-        return null;
-    }
-
-    public function getPersistence(){
-        return new \App\Service\Persistence\GlobalIdentifierPersistence();
+    public function getIdentifiableClassName(){
+        return "\App\Model\Identifiable\GlobalIdentifier";
     }
 
     public function create($entity){

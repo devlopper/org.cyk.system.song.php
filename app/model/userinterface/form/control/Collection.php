@@ -22,14 +22,23 @@ class Collection extends \App\Model\UserInterface\AbstractComponent {
     $input->attributeName = $attributeName;
     $input->value = get_class_vars(get_class($this->object))[$input->attributeName];
     $input->name = $attributeName;
-    $this->controls[] = $input;
+    //$this->controls[] = $input;
+    $input = $this->addControl($input);
     return $input;
   }
 
   protected function addControl($control){
     //$control->identifier = generate;
-    $control->cascadeStyleSheet->addClass();
+    $control->readOnly = $this->readOnly;
+    //$control->cascadeStyleSheet->addClass();
     $this->controls[] = $control;
     return $control;
+  }
+
+  public function setReadOnly($value){
+    parent::setReadOnly($value);
+    foreach ($this->controls as $control) {
+      $control->setReadOnly($value);
+    }
   }
 }

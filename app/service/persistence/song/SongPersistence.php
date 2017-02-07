@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Persistence;
+namespace App\Service\Persistence\Song;
 
 require_once(app_path().'\service\persistence\AbstractPersistence.php');
 

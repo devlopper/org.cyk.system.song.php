@@ -7,7 +7,7 @@
         dom: 'Bfrtip',
         "processing": true
         ,"serverSide": true
-        ,"ajax": "song/get/many"
+        ,"ajax": "{{ route('getSongMany') }}"
         ,"language": {
           "lengthMenu": 'Display <select>'+
             '<option value="3">3</option>'+

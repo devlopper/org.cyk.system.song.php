@@ -20,6 +20,17 @@ class Command extends \App\Model\UserInterface\AbstractComponent {
     return "<a href='".$this->gotoLink."' class='".$this->cascadeStyleSheet->class."'>".$this->name.$iconHtml."</a>";
   }
 
+  /**/
+
+  public static function instanciateOne($nameIdentifier,$gotoLink,$icon,$cascadeStyleSheetClass){
+    $command = new \App\Model\UserInterface\Command\Command();
+    //if($nameIdentifier)
+    $command->name = trans($nameIdentifier);
+    $command->gotoLink = $gotoLink;
+    $command->icon = $icon;
+    $command->cascadeStyleSheet->addClass($cascadeStyleSheetClass);
+    return $command;
+  }
 
 
 }

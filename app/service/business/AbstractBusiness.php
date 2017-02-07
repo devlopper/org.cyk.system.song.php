@@ -6,9 +6,6 @@ require_once(app_path().'\service\AbstractService.php');
 
 abstract class AbstractBusiness extends \App\Service\AbstractService {
 
-  public abstract function getDtoClass();
-  public abstract function getPersistence();
-
   protected function executeInTransaction($function,$parameters){
     try {
       $function($parameters[0],count($parameters)>1?$parameters[1]:0);
@@ -17,6 +14,13 @@ abstract class AbstractBusiness extends \App\Service\AbstractService {
       \DB::rollback();
       throw $e;
     }
+  }
+
+  public abstract function getIdentifiableClassName();
+
+  protected function getPersistence(){
+    $class = \App\Utils::getIdentifiablePersistenceClassName($this->getIdentifiableClassName());
+    return new $class;
   }
 
   /* Create */
@@ -72,7 +76,7 @@ abstract class AbstractBusiness extends \App\Service\AbstractService {
   /* Instanciate */
 
   public function instanciateOne(){
-    $class = $this->getPersistence()->getEntityClass();
+    $class =  $this->getIdentifiableClassName();
     $identifiable = new $class;
     return $identifiable;
   }

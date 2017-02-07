@@ -4,7 +4,7 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Model\Identifiable\Song\Song;
-use App\Service\Business\SongBusiness;
+use App\Service\Business\Song\SongBusiness;
 
 require_once('\database\seeds\AbstractSeeder.php');
 
@@ -24,17 +24,17 @@ class SongBusinessTest extends TestCase {
       $song->lyrics="Oh Jesus! You are my lord.";
 
       $globalIdentifierCount = (new App\Service\Business\GlobalIdentifierBusiness())->countAll();
-      $songCount = (new App\Service\Business\SongBusiness())->countAll();
+      $songCount = (new SongBusiness())->countAll();
 
-      (new App\Service\Business\SongBusiness())->create($song);
+      (new SongBusiness())->create($song);
 
       $this->assertEquals($globalIdentifierCount+1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
-      $this->assertEquals($songCount+1, (new App\Service\Business\SongBusiness())->countAll());
+      $this->assertEquals($songCount+1, (new SongBusiness())->countAll());
 
       $this->seeInDatabase('globalidentifier', ['identifier' => $song->getGlobalIdentifierInstance()->identifier,'code' => 's001','name' => 'Yes! You are']);
       $this->seeInDatabase('song', ['lyrics' => 'Oh Jesus! You are my lord.','globalidentifier' => $song->getGlobalIdentifierInstance()->identifier]);
 
-      $song = (new App\Service\Business\SongBusiness())->findByCode("s001");
+      $song = (new SongBusiness())->findByCode("s001");
       $this->assertSong("s001","Yes! You are","Oh Jesus! You are my lord.",$song);
     }
 
@@ -43,8 +43,8 @@ class SongBusinessTest extends TestCase {
       $song->getGlobalIdentifierInstance()->code = "s001ToRead";
       $song->getGlobalIdentifierInstance()->name = "My song";
       $song->lyrics="The lines of the lyrics";
-      (new App\Service\Business\SongBusiness())->create($song);
-      $song = (new App\Service\Business\SongBusiness())->findByCode("s001ToRead");
+      (new SongBusiness())->create($song);
+      $song = (new SongBusiness())->findByCode("s001ToRead");
       $this->assertSong("s001ToRead","My song","The lines of the lyrics",$song);
     }
 
@@ -54,8 +54,8 @@ class SongBusinessTest extends TestCase {
       $song->getGlobalIdentifierInstance()->name = "My song";
       $song->lyrics="The lines of the lyrics";
       //$this->echoSong($song,"Before create");
-      (new App\Service\Business\SongBusiness())->create($song);
-      $song = ((new App\Service\Business\SongBusiness())->findByCode("s001ToUpdate"));
+      (new SongBusiness())->create($song);
+      $song = ((new SongBusiness())->findByCode("s001ToUpdate"));
       //$this->echoSong($song,"After find by code");
       $this->assertSong("s001ToUpdate","My song","The lines of the lyrics",$song);
       //$song->setGlobalIdentifierInstance($song->getGlobalIdentifier);
@@ -63,8 +63,8 @@ class SongBusinessTest extends TestCase {
       //$song->name="NewTitle";
       $song->lyrics="The lines of the lyrics.More lines";
       //$this->echoSong($song,"Before update");
-      (new App\Service\Business\SongBusiness())->update($song);
-      $song = (new App\Service\Business\SongBusiness())->findByCode("s001ToUpdate");
+      (new SongBusiness())->update($song);
+      $song = (new SongBusiness())->findByCode("s001ToUpdate");
       //$this->echoSong($song,"After find by code after update");
       $this->assertSong("s001ToUpdate","Newtitle","The lines of the lyrics.More lines",$song);
 
@@ -77,25 +77,25 @@ class SongBusinessTest extends TestCase {
       $song->lyrics="The lines of the lyrics";
 
       $globalIdentifierCount = (new App\Service\Business\GlobalIdentifierBusiness())->countAll();
-      $songCount = (new App\Service\Business\SongBusiness())->countAll();
-      (new App\Service\Business\SongBusiness())->create($song);
+      $songCount = (new SongBusiness())->countAll();
+      (new SongBusiness())->create($song);
       $this->assertEquals($globalIdentifierCount+1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
-      $this->assertEquals($songCount+1, (new App\Service\Business\SongBusiness())->countAll());
+      $this->assertEquals($songCount+1, (new SongBusiness())->countAll());
 
-      $song = (new App\Service\Business\SongBusiness())->findByCode("s001ToDelete");
+      $song = (new SongBusiness())->findByCode("s001ToDelete");
 
       $globalIdentifierCount = (new App\Service\Business\GlobalIdentifierBusiness())->countAll();
-      $songCount = (new App\Service\Business\SongBusiness())->countAll();
-      (new App\Service\Business\SongBusiness())->delete($song);
+      $songCount = (new SongBusiness())->countAll();
+      (new SongBusiness())->delete($song);
       $this->assertEquals($globalIdentifierCount-1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
-      $this->assertEquals($songCount-1, (new App\Service\Business\SongBusiness())->countAll());
+      $this->assertEquals($songCount-1, (new SongBusiness())->countAll());
 
       $this->assertEquals(null, (new App\Service\Business\GlobalIdentifierBusiness())->findByCode("s001ToDelete"));
-      $this->assertEquals(null, (new App\Service\Business\SongBusiness())->findByCode("s001ToDelete"));
+      $this->assertEquals(null, (new SongBusiness())->findByCode("s001ToDelete"));
     }
 
     public function testPagination(){
-      $songBusiness = new \App\Service\Business\SongBusiness();
+      $songBusiness = new SongBusiness();
       for($i = 0 ; $i < 10 ; $i++){
         $song = new Song();
         $song->getGlobalIdentifierInstance()->code = "s".$i;

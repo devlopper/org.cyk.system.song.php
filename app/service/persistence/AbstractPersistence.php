@@ -7,7 +7,7 @@ require_once(app_path().'\service\AbstractService.php');
 abstract class AbstractPersistence extends \App\Service\AbstractService {
 
     public abstract function getEntityModel();
-    public abstract function getEntityClass();
+    //public abstract function getEntityClass();
     public function getTableName(){
       return (new \ReflectionClass(new $this->getEntityModel()))->getShortName();
     }

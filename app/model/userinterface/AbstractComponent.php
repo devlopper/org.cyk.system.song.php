@@ -10,6 +10,7 @@ abstract class AbstractComponent {
   public $gotoLink;
   public $includedLayout;
   public $icon;
+  public $readOnly;
 
   public function __construct(array $attributes = array()) {
     $this->cascadeStyleSheet = new \App\Model\UserInterface\CascadeStyleSheet();
@@ -27,5 +28,9 @@ abstract class AbstractComponent {
 
   public static function concatenateHtml($string,$command){
     return $string . $command->getHtml();
+  }
+
+  public function setReadOnly($value){
+    $this->readOnly = $value;
   }
 }

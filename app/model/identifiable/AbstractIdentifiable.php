@@ -9,7 +9,7 @@ class AbstractIdentifiable extends Model{
 
     public $timestamps = false;
 
-    protected $guarded = array('identifier');
+    //protected $guarded = array('identifier');
 
     protected $globalIdentifierInstance;
 

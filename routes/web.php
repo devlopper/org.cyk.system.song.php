@@ -14,9 +14,12 @@
 /* Page */
 Route::get('song/list', 'song\SongController@showListPage')->name('showSongListPage');
 Route::get('song/create', 'song\SongController@showCreatePage')->name('showSongCreatePage');
+Route::get('song/read/{id}', 'song\SongController@showReadPage')->name('showSongReadPage');
 Route::get('song/update/{id}', 'song\SongController@showUpdatePage')->name('showSongUpdatePage');
+Route::get('song/delete/{id}', 'song\SongController@showDeletePage')->name('showSongDeletePage');
 /* Service */
-Route::get('song/get/many', 'song\SongController@getSongs')->name('getSongs');
+Route::get('song/get/many', 'song\SongController@getMany')->name('getSongMany');
+Route::post('song/crud/one', '\App\Http\Controllers\Song\SongController@crudOne')->name('crudSongOne');
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,11 +32,11 @@ Route::get('bootstrap', function () {
 Route::get('template/up_right_bottom_left', 'playground\TemplateController@upRightBottomLeft');
 Route::get('playground/editor/jquery', 'playground\EditorController@jquery');
 
-Route::get('song', 'song\SongController@showListPage');
+//Route::get('song', 'song\SongController@showListPage');
 
-Route::get('song', [
+/*Route::get('song', [
   'as' => 'song',
   'uses' => 'song\SongController@showListPage'
-]);
+]);*/
 
-Route::post('saveSong', 'song\SongController@save');
+//Route::post('saveSong', '\App\Http\Controllers\Song\SongController@save');
