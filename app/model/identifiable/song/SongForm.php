@@ -19,4 +19,6 @@ class SongForm extends \App\Model\Identifiable\AbstractIdentifiableForm {
       parent::writeToIdentifiable();
       $this->identifiable->lyrics = $this->lyrics;
     }
+
+    const FIELD_LYRICS = "lyrics";
 }

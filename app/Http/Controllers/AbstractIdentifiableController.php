@@ -5,15 +5,24 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\UserInterface\Page\Page;
+use App\Model\UserInterface\Form\AbstractForm;
 use App\Model\Constant;
+use App\Model\Identifiable\GlobalIdentifier;
+use App\Model\Identifiable\AbstractIdentifiable;
+use App\Model\Utils\Pagination;
+use App\Service\Business\Utils\LanguageBusiness;
 
 abstract class AbstractIdentifiableController extends \App\Http\Controllers\AbstractController{
+
+  protected function getFieldNames(Request $request){
+    return [GlobalIdentifier::FIELD_CODE,GlobalIdentifier::FIELD_NAME];
+  }
 
   protected function getMany(Request $request){
       $classInfos = \App\Model\Identifiable\IdentifiableClass::getByClassName($this->getIdentifiableClassName());
       $business = $this->getBusinessInstance();
-      $start = intval($request->input('start'));
-      $paginator = new \App\Model\Utils\Pagination($start,intval($request->input('length')));
+      $start = intval($request->input(Pagination::START));
+      $paginator = new Pagination($start,intval($request->input(Pagination::LENGTH)));
       $identifiables = $business->findAllUsingPagination($paginator);
       $i = 0;
       $dtoClass = $this->getDtoClass();
@@ -22,18 +31,12 @@ abstract class AbstractIdentifiableController extends \App\Http\Controllers\Abst
         $dto = new $dtoClass;
         $dto->setIdentifiable($identifiable);
         $commandCollection = new \App\Model\UserInterface\Command\Collection();
-        $commandCollection->createCommand("message.command.read",route('show'.$classInfos->simpleClassName.'ReadPage'
-          ,[$dto->identifier]),"glyphicon glyphicon-eye-open","btn-primary");
-        $commandCollection->createCommand("message.command.update",route('show'.$classInfos->simpleClassName.'UpdatePage',[$dto->identifier])
-          ,"glyphicon glyphicon-edit","btn-warning");
-        $commandCollection->createCommand("message.command.delete",route('show'.$classInfos->simpleClassName.'DeletePage',[$dto->identifier])
-          ,"glyphicon glyphicon-trash","btn-danger");
-
+        $commandCollection->addCrud($identifiable);
+        $commandCollection->emptyCommandNames();
         $data[$i++] = $this->getAsArray($request,$start,$i,$dto,$commandCollection->getHtml());
-
     }
-    return ['draw'=> intval($request->input('draw'))+1,'recordsTotal'=> $business->countAll(),'recordsFiltered'=>$business->countAllUsingPagination($paginator)
-      ,'data'=> $data ];
+    return ['draw'=> intval($request->input('draw'))+1,'recordsTotal'=> $business->countAll()
+      ,'recordsFiltered'=>$business->countAllUsingPagination($paginator),'data'=> $data ];
   }
 
   protected function getAsArray(Request $request,$start,$i,$dto,$commands){
@@ -41,8 +44,8 @@ abstract class AbstractIdentifiableController extends \App\Http\Controllers\Abst
     $entry["DT_RowId"] = $dto->identifier;
     $entry["DT_RowData"] = ["pkey"=>$dto->identifier];
     $entry[] = $start+$i;
-    $entry[] = $dto->code;
-    $entry[] = $dto->name;
+    foreach($this->getFieldNames($request) as $fieldName)
+        $entry[] = $dto->$fieldName;
     $entry = $this->processDtoArray($request,$dto,$entry);
     $entry[] = $commands;
     return $entry;
@@ -56,18 +59,14 @@ abstract class AbstractIdentifiableController extends \App\Http\Controllers\Abst
 
   public function showListPage(Request $request){
     $classInfos = \App\Model\Identifiable\IdentifiableClass::getByClassName($this->getIdentifiableClassName());
-    $business = $this->getBusinessInstance();
-    $page = $this->instanciatePage($request,"List of",$classInfos->label);
-    $table = $this->instanciateTable($request);
-    $table = $this->addTableColumns($request,$table);
-    $page->view = $classInfos->identifier.'/list';
-    $page->addTable($table);
+    $page = Page::createListPage($request,$classInfos);
+    $this->addTableColumns($request,$page->tables[0]);
     return $this->gotoPage($page);
   }
 
   protected function addTableColumns(Request $request,$table){
-    $table->addColumn("code");
-    $table->addColumn("name");
+    foreach($this->getFieldNames($request) as $fieldName)
+      $table->addColumn($fieldName);
     $table = $this->addSpecificTableColumns($request,$table);
     return $table;
   }
@@ -134,10 +133,10 @@ abstract class AbstractIdentifiableController extends \App\Http\Controllers\Abst
 
   protected function buildFormControlCollection(Request $request,$form){
     $controlCollection = $form->addControlCollection();
-    $controlCollection->addInputText("action");
-    $controlCollection->addInputText("identifier");
-    $controlCollection->addInputText("code");
-    $controlCollection->addInputText("name");
+    $controlCollection->addInputHidden(AbstractForm::FIELD_ACTION);
+    $controlCollection->addInputHidden(AbstractIdentifiable::FIELD_IDENTIFIER);
+    $controlCollection->addInputText(GlobalIdentifier::FIELD_CODE);
+    $controlCollection->addInputText(GlobalIdentifier::FIELD_NAME);
     return $controlCollection;
   }
 
@@ -172,9 +171,16 @@ abstract class AbstractIdentifiableController extends \App\Http\Controllers\Abst
 
   protected function getFormInstance($identifiable,$editable){
     $formClass = $this->getFormClass();
-    $form = new $formClass(["editable" => $editable,"action"=>1]);
+    $form = new $formClass([AbstractForm::FIELD_EDITABLE => $editable,AbstractForm::FIELD_ACTION=>1]);
     $form->setIdentifiable($identifiable);
     return $form;
+  }
+
+  protected function getValidationRules(Request $request){
+    $rules = parent::getValidationRules($request);
+    $rules[GlobalIdentifier::FIELD_CODE] = 'required';
+    $rules[GlobalIdentifier::FIELD_NAME] = 'required';
+    return $rules;
   }
 
 }

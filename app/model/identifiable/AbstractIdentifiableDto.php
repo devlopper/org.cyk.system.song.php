@@ -22,4 +22,10 @@ abstract class AbstractIdentifiableDto {
       return $this->identifiable;
     }
 
+    const FIELD_IDENTIFIABLE = "identifiable";
+    const FIELD_IDENTIFIER = "identifier";
+    const FIELD_GLOBAL_IDENTIFIER = "globalidentifier";
+    const FIELD_CODE = "code";
+    const FIELD_NAME = "name";
+
 }

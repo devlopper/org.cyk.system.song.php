@@ -2,9 +2,7 @@
 
 namespace App\Service\Business;
 
-require_once(app_path().'\service\business\AbstractBusiness.php');
-
-class GlobalIdentifierBusiness extends \App\Service\Business\AbstractBusiness {
+class GlobalIdentifierBusiness extends \App\Service\Business\AbstractIdentifiableBusiness {
 
     public function getIdentifiableClassName(){
         return "\App\Model\Identifiable\GlobalIdentifier";

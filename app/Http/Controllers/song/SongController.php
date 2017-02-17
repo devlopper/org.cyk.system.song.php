@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Song;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Model\Identifiable\GlobalIdentifier;
 use App\Model\Identifiable\Song\Song;
 use App\Model\Identifiable\Song\SongDto;
 use App\Model\Identifiable\Song\SongForm;
@@ -17,28 +17,22 @@ class SongController extends \App\Http\Controllers\AbstractIdentifiableControlle
       return "\App\Model\Identifiable\Song\Song";
     }
 
-    protected function processDtoArray(Request $request,$dto,$entry){
-      $entry[] = $dto->lyrics;
-      return $entry;
-    }
-
-    protected function addSpecificTableColumns(Request $request,$table){
-      $table->addColumn("lyrics");
-      return $table;
+    protected function getFieldNames(Request $request){
+      $fieldNames = parent::getFieldNames($request);
+      $fieldNames[] = SongForm::FIELD_LYRICS;
+      return $fieldNames;
     }
 
     protected function buildFormControlCollection(Request $request,$form){
       $controlCollection = parent::buildFormControlCollection($request,$form);
-      $controlCollection->addInputTextarea("lyrics");
+      $controlCollection->addInputTextarea(SongForm::FIELD_LYRICS);
       return $controlCollection;
     }
 
     protected function getValidationRules(Request $request){
-      return [
-        'code' => 'required',
-        'name' => 'required',
-        'lyrics' => 'required'
-      ];
+      $rules = parent::getValidationRules($request);
+      $rules[SongForm::FIELD_LYRICS] = 'required';
+      return $rules;
     }
 
 }

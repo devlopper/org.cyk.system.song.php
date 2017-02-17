@@ -12,4 +12,8 @@ class Pagination {
     $this->pageSize = $pageSize;
   }
 
+  /**/
+
+  const START = "start";
+  const LENGTH = "length";
 }

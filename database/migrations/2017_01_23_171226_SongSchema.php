@@ -28,6 +28,7 @@ class SongSchema extends Migration
           $table->string('mime')->nullable();
           $table->string('url')->nullable();
       });
+      DB::statement("ALTER TABLE file MODIFY bytes LONGBLOB");
       Schema::create('joinedfile', function (Blueprint $table) {
           $table->increments('identifier')->unique();
           $table->string('globalidentifier');

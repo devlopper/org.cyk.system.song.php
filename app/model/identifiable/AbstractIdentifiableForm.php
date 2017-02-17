@@ -55,7 +55,10 @@ abstract class AbstractIdentifiableForm extends \App\Model\UserInterface\Form\Ab
     }
 
     public function configureCrud(){
+      $this->createSubmitCommand();
       $this->submitCommand->action = \App\Utils::getIdentifiableControllerClassName($this->getIdentifiableClassName())
         .'@crudOne';
     }
+
+    const FIELD_IDENTIFIABLE = "identifiable";
 }

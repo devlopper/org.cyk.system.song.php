@@ -8,4 +8,5 @@ class Song extends \App\Model\Identifiable\AbstractIdentifiable {
 
     protected $table = 'song';
 
+    const FIELD_LYRICS = "lyrics";
 }

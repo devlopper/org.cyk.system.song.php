@@ -11,8 +11,14 @@ abstract class AbstractComponent {
   public $includedLayout;
   public $icon;
   public $readOnly;
+  public $rendered;
+  public $tooltip;
+
+  public $parent;
+  public $children;
 
   public function __construct(array $attributes = array()) {
+    $this->rendered = true;
     $this->cascadeStyleSheet = new \App\Model\UserInterface\CascadeStyleSheet();
     $this->includedLayout = str_replace("App\Model\UserInterface","include",$this->getIncludedLayoutClassName());
     //$this->includedLayout = "include"./form/control/input/.strtolower((new \ReflectionClass($this))->getShortName());
@@ -32,5 +38,24 @@ abstract class AbstractComponent {
 
   public function setReadOnly($value){
     $this->readOnly = $value;
+  }
+
+  public function isReadOnly(){
+    return strcmp($this->readOnly,"readonly")==0;
+  }
+
+  public function setName($name){
+    $this->name = $name;
+    $this->setTooltip($this->name);
+  }
+
+  public function setTooltip($tooltip){
+    $this->tooltip = $tooltip;
+  }
+
+  /**/
+
+  public static function buildAttribute($name,$value){
+    return $name."='".$value."'";
   }
 }

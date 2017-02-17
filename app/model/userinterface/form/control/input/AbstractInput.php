@@ -6,5 +6,11 @@ abstract class AbstractInput extends \App\Model\UserInterface\Form\Control\Abstr
 
   public $attributeName;
   public $value;
+  public $type;
+
+  public function setType($type){
+    $this->type = $type;
+    return $this;
+  }
 
 }

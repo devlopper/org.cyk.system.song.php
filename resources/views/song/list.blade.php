@@ -38,6 +38,8 @@
   </script>
 @endsection
 
-@section('content')
+
+
+@section('content_body')
   @include('layouts/collection/table', ['table' => $table])
 @endsection

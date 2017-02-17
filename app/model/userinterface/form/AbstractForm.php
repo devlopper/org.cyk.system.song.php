@@ -2,6 +2,8 @@
 
 namespace App\Model\UserInterface\Form;
 
+use App\Service\Business\Utils\LanguageBusiness;
+
 abstract class AbstractForm extends \App\Model\UserInterface\AbstractComponent {
 
   public $controlCollections = array();
@@ -16,19 +18,17 @@ abstract class AbstractForm extends \App\Model\UserInterface\AbstractComponent {
 
     $this->includedLayout = "include.form.one";
     $this->commandCollection = new \App\Model\UserInterface\Command\Collection();
-    $this->submitCommand = new \App\Model\UserInterface\Command\Command();
-    $this->submitCommand->name = 'Exécuter';
-    $this->submitCommand->type = 'submit';
-    $this->submitCommand->cascadeStyleSheet->addClass("btn-success");
 
     $this->action = $attributes['action'];
     $this->editable = $attributes['editable'];
     $this->readOnly = $this->editable == 0 ? "readonly" : "";
     $this->actionable = strcmp(\App\Model\Constant::CRUD_READ,$this->action)!=0;
-  
-    if(!isset($this->actionable) || $this->actionable){
-      $this->commandCollection->add($this->submitCommand);
-    }
+  }
+
+  public function createSubmitCommand(){
+    $this->submitCommand = \App\Model\UserInterface\Command\Command::instanciateOneSubmit(null,'glyphicon glyphicon-save',"btn-success");
+    $this->submitCommand->name = (new LanguageBusiness())->findVerb($this->action);
+    $this->commandCollection->add($this->submitCommand);
   }
 
   public function addControlCollection(){
@@ -46,4 +46,9 @@ abstract class AbstractForm extends \App\Model\UserInterface\AbstractComponent {
     }
   }
 
+  /**/
+
+  const FIELD_ACTION = "action";
+  const FIELD_EDITABLE = "editable";
+  const FIELD_ACTIONABLE = "actionable";
 }

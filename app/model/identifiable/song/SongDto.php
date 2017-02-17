@@ -10,4 +10,6 @@ class SongDto extends \App\Model\Identifiable\AbstractIdentifiableDto {
       parent::setIdentifiable($song);
       $this->lyrics = $song->lyrics;
     }
+
+    const FIELD_LYRICS = "lyrics";
 }

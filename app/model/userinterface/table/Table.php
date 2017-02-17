@@ -8,7 +8,7 @@ class Table extends \App\Model\UserInterface\AbstractComponent  {
   public $rows = array();
 
   public function addColumn($name){
-    $column = new Column($name);
+    $column = new Column( (new \App\Service\Business\Utils\LanguageBusiness())->findField($name));
     array_push($this->columns,$column);
     return $column;
   }
@@ -17,6 +17,14 @@ class Table extends \App\Model\UserInterface\AbstractComponent  {
     $row = new Row("");
     array_push($this->rows,$row);
     return $row;
+  }
+
+  /**/
+
+  public static function instanciateOne(){
+    $table = new Table();
+    $table->identifier="table";
+    return $table;
   }
 
 }

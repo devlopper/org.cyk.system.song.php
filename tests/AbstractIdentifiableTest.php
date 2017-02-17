@@ -8,159 +8,200 @@ require_once('\database\seeds\AbstractSeeder.php');
 
 abstract class AbstractIdentifiableTest extends TestCase {
 
-    use DatabaseMigrations;
+  use DatabaseMigrations;
 
-    public function testList(){
-      $this->visit('/song/list')
-             ->see('Laravel 5')
-             ->dontSee('Rails');
+  protected abstract function getIdentifiableClassName();
+
+  protected function getTableName(){
+    $classInfos = \App\Model\Identifiable\IdentifiableClass::getByClassName($this->getIdentifiableClassName());
+    return strtolower($classInfos->simpleClassName);
+  }
+
+  protected function getBusinessClass(){
+    return \App\Utils::getIdentifiableBusinessClassName($this->getIdentifiableClassName());
+  }
+
+  protected function getBusinessInstance(){
+    $businessClass = $this->getBusinessClass();
+    $business = new $businessClass;
+    return $business;
+  }
+
+  protected function getGlobalIdentifierBusinessInstance(){
+    return new App\Service\Business\GlobalIdentifierBusiness();
+  }
+
+  protected function setIdentifiableFieldValues($when,$identifiable){
+    $identifiable->getGlobalIdentifierInstance()->code = "MyCode".rand();
+    $identifiable->getGlobalIdentifierInstance()->name = "The name";
+    foreach ($this->getDirectFieldNames() as $name)
+      $identifiable->$name = $this->setIdentifiableFieldValue($when,$identifiable,$name);
+
+    if($when == AbstractIdentifiableTest::TEST_UPDATE_UPDATE_IDENTIFIABLE){
+      $identifiable->getGlobalIdentifierInstance()->name = "updated name : ".rand();
     }
-    public function ftestCreate(){
-      $song = (new SongBusiness())->instanciateOne();
-      $song->getGlobalIdentifierInstance()->code = "s001";
-      $song->getGlobalIdentifierInstance()->name = "Yes! You are";
-      $song->lyrics="Oh Jesus! You are my lord.";
+    return $identifiable;
+  }
 
-      $globalIdentifierCount = (new App\Service\Business\GlobalIdentifierBusiness())->countAll();
-      $songCount = (new SongBusiness())->countAll();
+  protected function setIdentifiableFieldValue($when,$identifiable,$fieldName){
+    return "VALUE".rand();
+  }
 
-      (new SongBusiness())->create($song);
+  /**/
 
-      $this->assertEquals($globalIdentifierCount+1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
-      $this->assertEquals($songCount+1, (new SongBusiness())->countAll());
+  public function testInstanciateOne(){
+    $identifiable = $this->getBusinessInstance()->instanciateOne();
+    $this->assertNotEquals(null, $identifiable);
+  }
 
-      $this->seeInDatabase('globalidentifier', ['identifier' => $song->getGlobalIdentifierInstance()->identifier,'code' => 's001','name' => 'Yes! You are']);
-      $this->seeInDatabase('song', ['lyrics' => 'Oh Jesus! You are my lord.','globalidentifier' => $song->getGlobalIdentifierInstance()->identifier]);
+  public function testCreate(){
+    $business = $this->getBusinessInstance();
+    $identifiable = $business->instanciateOne();
+    $identifiable = $this->setIdentifiableFieldValues(AbstractIdentifiableTest::TEST_CREATE_CREATE_IDENTIFIABLE,$identifiable);
+    $memory = $identifiable;
 
-      $song = (new SongBusiness())->findByCode("s001");
-      $this->assertSong("s001","Yes! You are","Oh Jesus! You are my lord.",$song);
-    }
+    $globalIdentifierCount = $this->getGlobalIdentifierBusinessInstance()->countAll();
+    $songCount = $business->countAll();
 
-    public function ftestRead(){
-      $song = new Song();
-      $song->getGlobalIdentifierInstance()->code = "s001ToRead";
-      $song->getGlobalIdentifierInstance()->name = "My song";
-      $song->lyrics="The lines of the lyrics";
-      (new SongBusiness())->create($song);
-      $song = (new SongBusiness())->findByCode("s001ToRead");
-      $this->assertSong("s001ToRead","My song","The lines of the lyrics",$song);
-    }
+    $business->create($identifiable);
 
-    public function ftestUpdate(){
-      $song = new Song();
-      $song->getGlobalIdentifierInstance()->code = "s001ToUpdate";
-      $song->getGlobalIdentifierInstance()->name = "My song";
-      $song->lyrics="The lines of the lyrics";
-      //$this->echoSong($song,"Before create");
-      (new SongBusiness())->create($song);
-      $song = ((new SongBusiness())->findByCode("s001ToUpdate"));
-      //$this->echoSong($song,"After find by code");
-      $this->assertSong("s001ToUpdate","My song","The lines of the lyrics",$song);
-      //$song->setGlobalIdentifierInstance($song->getGlobalIdentifier);
-      $song->getGlobalIdentifierInstance()->name = "Newtitle";
-      //$song->name="NewTitle";
-      $song->lyrics="The lines of the lyrics.More lines";
-      //$this->echoSong($song,"Before update");
-      (new SongBusiness())->update($song);
-      $song = (new SongBusiness())->findByCode("s001ToUpdate");
-      //$this->echoSong($song,"After find by code after update");
-      $this->assertSong("s001ToUpdate","Newtitle","The lines of the lyrics.More lines",$song);
+    $this->assertEquals($globalIdentifierCount+1, $this->getGlobalIdentifierBusinessInstance()->countAll());
+    $this->assertEquals($songCount+1, $business->countAll());
 
-    }
+    $this->doDatabaseAssertions(AbstractIdentifiableTest::TEST_CREATE_AFTER_CREATE_IDENTIFIABLE,$identifiable,$memory);
+    $identifiable = $business->findByCode($memory->getGlobalIdentifierInstance()->code);
+    $this->doIdentifiableAssertions(AbstractIdentifiableTest::TEST_CREATE_AFTER_READ_BY_CODE,$identifiable,$memory);
+  }
 
-    public function ftestDelete(){
-      $song = new Song();
-      $song->getGlobalIdentifierInstance()->code = "s001ToDelete";
-      $song->getGlobalIdentifierInstance()->name = "My song";
-      $song->lyrics="The lines of the lyrics";
+  public function testRead(){
+    $business = $this->getBusinessInstance();
+    $identifiable = $business->instanciateOne();
+    $identifiable = $this->setIdentifiableFieldValues(AbstractIdentifiableTest::TEST_READ_CREATE_IDENTIFIABLE,$identifiable);
+    $memory = $identifiable;
+    $business->create($identifiable);
+    $identifiable = $business->findByCode($memory->getGlobalIdentifierInstance()->code);
+    $this->doIdentifiableAssertions(AbstractIdentifiableTest::TEST_READ_AFTER_READ_BY_CODE,$identifiable,$memory);
+  }
 
-      $globalIdentifierCount = (new App\Service\Business\GlobalIdentifierBusiness())->countAll();
-      $songCount = (new SongBusiness())->countAll();
-      (new SongBusiness())->create($song);
-      $this->assertEquals($globalIdentifierCount+1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
-      $this->assertEquals($songCount+1, (new SongBusiness())->countAll());
+  public function testUpdate(){
+    $business = $this->getBusinessInstance();
+    $identifiable = $business->instanciateOne();
+    $identifiable = $this->setIdentifiableFieldValues(AbstractIdentifiableTest::TEST_UPDATE_CREATE_IDENTIFIABLE,$identifiable);
+    $memory = $identifiable;
+    $business->create($identifiable);
+    $identifiable = $business->findByCode($memory->getGlobalIdentifierInstance()->code);
+    $this->doIdentifiableAssertions(AbstractIdentifiableTest::TEST_UPDATE_AFTER_READ_BY_CODE_1,$identifiable,$memory);
 
-      $song = (new SongBusiness())->findByCode("s001ToDelete");
+    $identifiable = $this->setIdentifiableFieldValues(AbstractIdentifiableTest::TEST_UPDATE_UPDATE_IDENTIFIABLE,$identifiable);
+    $memory = $identifiable;
 
-      $globalIdentifierCount = (new App\Service\Business\GlobalIdentifierBusiness())->countAll();
-      $songCount = (new SongBusiness())->countAll();
-      (new SongBusiness())->delete($song);
-      $this->assertEquals($globalIdentifierCount-1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
-      $this->assertEquals($songCount-1, (new SongBusiness())->countAll());
+    $business->update($identifiable);
+    $identifiable = $business->findByCode($memory->getGlobalIdentifierInstance()->code);
 
-      $this->assertEquals(null, (new App\Service\Business\GlobalIdentifierBusiness())->findByCode("s001ToDelete"));
-      $this->assertEquals(null, (new SongBusiness())->findByCode("s001ToDelete"));
-    }
+    $this->doIdentifiableAssertions(AbstractIdentifiableTest::TEST_UPDATE_AFTER_READ_BY_CODE_2,$identifiable,$memory);
 
-    public function ftestPagination(){
-      $songBusiness = new SongBusiness();
-      for($i = 0 ; $i < 10 ; $i++){
-        $song = new Song();
-        $song->getGlobalIdentifierInstance()->code = "s".$i;
-        $song->getGlobalIdentifierInstance()->name = "My song";
-        $song->lyrics="The lines of the lyrics";
-        $songBusiness->create($song);
-      }
+  }
 
-      $paginator = new \App\Model\Utils\Pagination(0,3);
-      $songs = $songBusiness->findAllUsingPagination($paginator);
-      $this->assertSongPagination(['s0','s1','s2'],$paginator,$songs);
+  public function testDelete(){
+    $business = $this->getBusinessInstance();
+    $identifiable = $business->instanciateOne();
+    $identifiable = $this->setIdentifiableFieldValues(AbstractIdentifiableTest::TEST_DELETE_CREATE_IDENTIFIABLE,$identifiable);
+    $memory = $identifiable;
 
-      $paginator = new \App\Model\Utils\Pagination(3,3);
-      $songs = $songBusiness->findAllUsingPagination($paginator);
-      $this->assertSongPagination(['s3','s4','s5'],$paginator,$songs);
+    $globalIdentifierCount = $this->getGlobalIdentifierBusinessInstance()->countAll();
+    $identifiableCount = $business->countAll();
 
-    }
+    $business->create($identifiable);
 
-    /**/
+    $this->assertEquals($globalIdentifierCount+1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
+    $this->assertEquals($identifiableCount+1, $business->countAll());
 
-    protected function create($count){
-      for($i = 0 ; $i < $count ; $i++){
-        $song = new Song();
-        $song->getGlobalIdentifierInstance()->code = "s".$i;
-        $song->getGlobalIdentifierInstance()->name = "My song";
-        $song->lyrics="The lines of the lyrics";
-        $songBusiness->create($song);
-      }
-    }
+    $identifiable = $business->findByCode($memory->getGlobalIdentifierInstance()->code);
 
-    /**/
+    $globalIdentifierCount = (new App\Service\Business\GlobalIdentifierBusiness())->countAll();
+    $identifiableCount = $business->countAll();
+    $business->delete($identifiable);
+    $this->assertEquals($globalIdentifierCount-1, (new App\Service\Business\GlobalIdentifierBusiness())->countAll());
+    $this->assertEquals($identifiableCount-1, $business->countAll());
 
-    private function assertSong($code,$name,$lyrics,$song){
-      $this->assertNotEquals(null, $song);
-      $this->assertNotEquals(null, $song->getGlobalIdentifierInstance());
-      $this->assertEquals($song->globalidentifier, $song->getGlobalIdentifierInstance()->identifier);
-      $this->assertEquals($code, $song->getGlobalIdentifierInstance()->code);
-      $this->assertEquals($name, $song->getGlobalIdentifierInstance()->name);
-      $this->assertEquals($lyrics, $song->lyrics);
-    }
+    $this->assertEquals(null, (new App\Service\Business\GlobalIdentifierBusiness())->findByCode($memory->getGlobalIdentifierInstance()->code));
+    $this->assertEquals(null, $business->findByCode($memory->getGlobalIdentifierInstance()->code));
+  }
 
-    private function echoSong($song,$message){
-      echo "\r\n".$message."\r\nIDENTIFIER : ".$song->identifier."\r\n";
-      echo "GLOBAL IDENTIFIER : ".$song->globalidentifier."\r\n";
-      echo "CODE : ".$song->getGlobalIdentifierInstance()->code."\r\n";
-      echo "NAME : ".$song->getGlobalIdentifierInstance()->name."\r\n";
-      echo "LYRICS : ".$song->lyrics."\r\n";
-      var_dump($song->getAttributes());
+  public function testPagination(){
+    $business = $this->getBusinessInstance();
+    $codes = array();
+    for($i = 0 ; $i < 10 ; $i++){
+      $identifiable = $business->instanciateOne();
+      $identifiable = $this->setIdentifiableFieldValues(AbstractIdentifiableTest::TEST_PAGINATION_CREATE_IDENTIFIABLE,$identifiable);
+      $codes[] = $identifiable->getGlobalIdentifierInstance()->code;
+      $business->create($identifiable);
     }
 
-    private function assertSongPagination($codes,$paginator,$songs){
-      for($i = 0 ; $i < count($songs) ; $i++){
-        $this->assertEquals($codes[$i], $songs[$i]->getGlobalIdentifier->code);
-      }
+    $paginator = new \App\Model\Utils\Pagination(0,3);
+    $identifiables = $business->findAllUsingPagination($paginator);
+    $this->doPaginationAssertions(array_slice($codes,0,3),$paginator,$identifiables);
+
+    $paginator = new \App\Model\Utils\Pagination(3,3);
+    $identifiables = $business->findAllUsingPagination($paginator);
+    $this->doPaginationAssertions(array_slice($codes,3,3),$paginator,$identifiables);
+
+  }
+
+  /**/
+
+  protected function doDatabaseAssertions($when,$identifiable,$memory){
+    $this->seeInDatabase('globalidentifier', ['identifier' => $identifiable->getGlobalIdentifierInstance()->identifier
+      ,'code' => $memory->getGlobalIdentifierInstance()->code,'name' => $memory->getGlobalIdentifierInstance()->name]);
+
+    $tuple = ['globalidentifier' => $identifiable->getGlobalIdentifierInstance()->identifier];
+      foreach ($memory->getAttributes() as $name => $value)
+        $tuple[$name] = $value;
+    $this->seeInDatabase($this->getTableName(), $tuple);
+  }
+
+  protected function doIdentifiableAssertions($when,$identifiable,$memory){
+    $this->assertNotEquals(null, $identifiable);
+    $this->assertNotEquals(null, $identifiable->getGlobalIdentifierInstance());
+    $this->assertEquals($identifiable->globalidentifier, $identifiable->getGlobalIdentifierInstance()->identifier);
+    $this->assertEquals($memory->getGlobalIdentifierInstance()->code, $identifiable->getGlobalIdentifierInstance()->code);
+    $this->assertEquals($memory->getGlobalIdentifierInstance()->name, $identifiable->getGlobalIdentifierInstance()->name);
+
+    foreach ($this->getDirectFieldNames() as $name){
+      //echo "Assert : ".$name." , ".$memory->$name." : ".$identifiable->$name;
+      $this->assertEquals($memory->$name, $identifiable->$name);
     }
+  }
 
-    /**/
-
-    protected abstract function getIdentifiableClassName();
-
-    protected function getBusinessClass(){
-      return \App\Utils::getIdentifiableBusinessClassName($this->getIdentifiableClassName());
+  protected function doPaginationAssertions($codes,$paginator,$identifiables){
+    for($i = 0 ; $i < count($identifiables) ; $i++){
+      $this->assertEquals($codes[$i], $identifiables[$i]->getGlobalIdentifier->code);
     }
+  }
 
-    protected function getBusinessInstance(){
-      $businessClass = $this->getBusinessClass();
-      $business = new $businessClass;
-      return $business;
-    }
+  protected function getDirectFieldNames(){
+    return [];
+  }
+
+  /**/
+
+  const TEST_CREATE_CREATE_IDENTIFIABLE = 1000;
+  const TEST_CREATE_AFTER_CREATE_IDENTIFIABLE = 1001;
+  const TEST_CREATE_AFTER_READ_BY_CODE = 1002;
+
+  const TEST_READ_CREATE_IDENTIFIABLE = 2000;
+  const TEST_READ_AFTER_CREATE_IDENTIFIABLE = 2001;
+  const TEST_READ_AFTER_READ_BY_CODE = 2002;
+
+  const TEST_UPDATE_CREATE_IDENTIFIABLE = 3000;
+  const TEST_UPDATE_AFTER_CREATE_IDENTIFIABLE = 3001;
+  const TEST_UPDATE_AFTER_READ_BY_CODE_1 = 3002;
+  const TEST_UPDATE_UPDATE_IDENTIFIABLE = 3003;
+  const TEST_UPDATE_AFTER_READ_BY_CODE_2 = 3004;
+
+  const TEST_DELETE_CREATE_IDENTIFIABLE = 4000;
+  const TEST_DELETE_AFTER_CREATE_IDENTIFIABLE = 4001;
+  const TEST_DELETE_AFTER_READ_BY_CODE = 4002;
+
+  const TEST_PAGINATION_CREATE_IDENTIFIABLE = 9000;
 }

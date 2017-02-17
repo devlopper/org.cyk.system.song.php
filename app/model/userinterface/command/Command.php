@@ -17,7 +17,10 @@ class Command extends \App\Model\UserInterface\AbstractComponent {
     if($this->icon)
       $iconHtml = "<span class='".$this->icon."'/>";
     //return "<button type='".$this->type."' class='btn btn-default'>".$this->name."</button>";
-    return "<a href='".$this->gotoLink."' class='".$this->cascadeStyleSheet->class."'>".$this->name.$iconHtml."</a>";
+    $href = $this->buildAttribute('href',$this->gotoLink);
+    $class = $this->buildAttribute('class',$this->cascadeStyleSheet->class);
+    $title = $this->buildAttribute('title',$this->tooltip);
+    return "<a ".$href." ".$class." ".$title." >".$this->name.$iconHtml."</a>";
   }
 
   /**/
@@ -25,10 +28,16 @@ class Command extends \App\Model\UserInterface\AbstractComponent {
   public static function instanciateOne($nameIdentifier,$gotoLink,$icon,$cascadeStyleSheetClass){
     $command = new \App\Model\UserInterface\Command\Command();
     //if($nameIdentifier)
-    $command->name = trans($nameIdentifier);
+    $command->setName(trans('command.'.$nameIdentifier));
     $command->gotoLink = $gotoLink;
     $command->icon = $icon;
     $command->cascadeStyleSheet->addClass($cascadeStyleSheetClass);
+    return $command;
+  }
+
+  public static function instanciateOneSubmit($nameIdentifier,$icon,$cascadeStyleSheetClass){
+    $command = Command::instanciateOne($nameIdentifier,null,$icon,$cascadeStyleSheetClass);
+    $command->type = 'submit';
     return $command;
   }
 

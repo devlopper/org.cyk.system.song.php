@@ -10,4 +10,10 @@ class GlobalIdentifier extends Model{
     public $primaryKey = "identifier";
     public $incrementing = false;
     public $timestamps = false;
+
+    /**/
+
+    const FIELD_CODE = "code";
+    const FIELD_NAME = "name";
+
 }

@@ -2,9 +2,7 @@
 
 namespace App\Service\Business;
 
-require_once(app_path().'\service\business\AbstractBusiness.php');
-
-abstract class AbstractNotGlobalIdentifierBusiness extends \App\Service\Business\AbstractBusiness {
+abstract class AbstractNotGlobalIdentifierBusiness extends \App\Service\Business\AbstractIdentifiableBusiness {
 
   public function findByCode($code){
     return $this->getPersistence()->readByCode($code);

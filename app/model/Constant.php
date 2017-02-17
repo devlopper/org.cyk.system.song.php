@@ -4,6 +4,8 @@ namespace App\Model;
 
 class Constant {
 
+  const CHARACTER_SLASH = "/";
+
   const FIELD_IDENTIFIER = "identifier";
 
   const CRUD_CREATE = "create";

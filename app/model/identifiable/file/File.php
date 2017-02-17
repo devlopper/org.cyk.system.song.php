@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Identifiable\File;
 
 use Illuminate\Database\Eloquent\Model;
 
-require_once(app_path().'\model\AbstractIdentifiable.php');
-
-class File extends AbstractIdentifiable
+class File extends \App\Model\Identifiable\AbstractIdentifiable
 {
     protected $table = 'file';
 

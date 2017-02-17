@@ -2,8 +2,6 @@
 
 return [
 
-    'command.create' => 'Créer'
-    ,'command.read' => 'Lire'
-    ,'command.update' => 'Mettre à jour'
-    ,'command.delete' => 'Supprimer'
+    'action.noun' => ':action :of :noun'
+    ,'action.verb' => ':verb :determinant :noun'
 ];

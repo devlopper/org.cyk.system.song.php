@@ -34,4 +34,9 @@ class AbstractIdentifiable extends Model{
         return $this->hasOne('App\Model\Identifiable\GlobalIdentifier','identifier','globalidentifier');
     }
 
+    /**/
+
+    const FIELD_IDENTIFIER = "identifier";
+    const FIELD_GLOBAL_IDENTIFIER = "globalidentifier";
+
 }

@@ -2,7 +2,7 @@
 
 namespace App\Service\Persistence;
 
-require_once(app_path().'\service\AbstractService.php');
+use App\Service\Persistence\ReadArguments;
 
 abstract class AbstractPersistence extends \App\Service\AbstractService {
 
@@ -18,16 +18,38 @@ abstract class AbstractPersistence extends \App\Service\AbstractService {
       return $entity->save();
     }
 
+    /* Query */
+
+    public function getReadArguments(){
+      $arguments = new ReadArguments();
+      $arguments->columns = array('*');
+      return $arguments;
+    }
+
+    public function getSelect($arguments){
+      $class = $this->getEntityClass();
+      if(isset($arguments) && $arguments!=null){
+        $columns = $arguments->columns;
+      }else{
+        $columns = $this->getReadArguments()->columns;
+      }
+      if($columns == null)
+        $columns = ['*'];
+      return $class::select($columns);
+    }
+
     /* Read */
 
+    public function readWithArguments($identifier,$arguments){
+      return $this->getSelect($arguments)->where(\App\Model\Identifiable\AbstractIdentifiable::FIELD_IDENTIFIER,$identifier)->first();
+    }
+
     public function read($identifier){
-      $class = $this->getEntityClass();
-      return $class::find($identifier);
+      return $this->readWithArguments($identifier,$this->getReadArguments());
     }
 
     public function readAll(){
-      $class = $this->getEntityClass();
-      return $class::all();
+      return $this->getSelect()->all();
     }
 
     public function readAllUsingPagination($pagination){
@@ -37,7 +59,7 @@ abstract class AbstractPersistence extends \App\Service\AbstractService {
 
     public function readByCode($code){
       $class = $this->getEntityClass();
-      return $class::where('code',$code)->first();
+      return $this->getSelect($this->getReadArguments())->where(\App\Model\Identifiable\GlobalIdentifier::FIELD_CODE,$code)->first();
     }
 
     /* Update */

@@ -8,7 +8,7 @@
   <script src="{{ URL::asset('js/jquery/jquery_min_3_1_1.js') }}"></script>
   <script src="{{ URL::asset('js/bootstrap_min_3_3_7.js') }}"></script>
   <script src="{{ URL::asset('js/jquery_datatables_bootstrap_min_1_10_13.js') }}"></script>
-  
+
   <link rel="stylesheet" href="{{ URL::asset('css/bootstrap_min_3_3_7.css') }}"/>
   <link rel="stylesheet" href="{{ URL::asset('css/jquery_datatables_bootstrap_min_1_10_13.css') }}"/>
 
@@ -20,7 +20,7 @@
 
 <nav class="navbar navbar-inverse">
   @section('up')
-      <h1>UP</h1>
+      @include('layouts/page/up/default')
   @show
 </nav>
 
@@ -28,26 +28,17 @@
   <div class="row content">
     <div class="col-sm-2 sidenav">
       @section('left')
-        <h1>LEFT</h1>
+        @include('layouts/page/left/default')
       @show
     </div>
     <div class="col-sm-8 text-left">
-      @if (count($errors) > 0)
-          <div class="alert alert-danger">
-              <ul>
-                  @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                  @endforeach
-              </ul>
-          </div>
-      @endif
 
-      @yield('content')
+      @include('layouts/page/content/titleup_contentbody_footerdown')
 
     </div>
     <div class="col-sm-2 sidenav">
       @section('right')
-        <h1>RIGHT</h1>
+        @include('layouts/page/right/default')
       @show
     </div>
   </div>
@@ -55,7 +46,7 @@
 
 <footer class="container-fluid text-center">
   @section('footer')
-    <h1>FOOTER</h1>
+    @include('layouts/page/footer/default')
   @show
 </footer>
 
